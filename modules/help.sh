@@ -71,7 +71,7 @@ internet [reverse]                        checks if the rpi has access to intern
 services                                  executes the given command on the specified service
    <available|installed [full]>           list available, and installed services
    <ports|running [full]>                 list ports used by services and services running
-   [planet]       <install>               Planet Learning is a generic learning system built in Angular & CouchDB
+   [planet]       <install|tag|tags>      Planet Learning is a generic learning system built in Angular & CouchDB
    [kolibri]      <up>                    Kolibri is a learning platform using DJango
    [nextcloud]    <start>                 Nextcloud is a safe home for all your data, files, etc
    [netdata]      <restart>               Netdata is a distributed, real-time performance and health monitoring for systems

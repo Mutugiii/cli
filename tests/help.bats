@@ -199,6 +199,8 @@ load test-helper
 @test "$clinom help services" {
   run "${clicmd}" help services
   assert_success
+  assert_output -p 'tag [version] (planet only)'
+  assert_output -p 'tags [version] (planet only)'
 }
 
 @test "$clinom help speedtest" {
