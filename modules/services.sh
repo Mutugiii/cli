@@ -157,13 +157,13 @@ function services {
             checkargn $# 2
             if [ "$service_name" = "planet" ]; then
               if [ -f /srv/planet/pwd/credentials.yml ]; then
-                if $dockercompose -f /srv/planet/planet.yml -f /srv/planet/volumes.yml -f /srv/planet/pwd/credentials.yml -p planet up -d ; then
+                if $dockercompose --project-directory /srv/planet -f /srv/planet/planet.yml -f /srv/planet/pwd/credentials.yml -p planet up -d ; then
                   echo "planet built and started"
                 else
                   log_and_exit1 "ERROR: cannot build planet"
                 fi
               else
-                if $dockercompose -f /srv/planet/planet.yml -f /srv/planet/volumes.yml -p planet up -d ; then
+                if $dockercompose --project-directory /srv/planet -f /srv/planet/planet.yml -p planet up -d ; then
                   echo "planet built and started"
                 else
                   log_and_exit1 "ERROR: cannot build planet"
