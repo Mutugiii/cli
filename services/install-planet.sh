@@ -4,7 +4,7 @@ function install {
   # create service directory
   mkdir -p /srv/planet
 
-  # create yml(s)
+  # create yml
   {
     echo "services:"
     echo "  couchdb:"
@@ -13,42 +13,50 @@ function install {
     echo "    image: treehouses/couchdb:2.3.1"
     echo "    ports:"
     echo "      - \"2200:5984\""
+    echo "    volumes:"
+    echo "      - \"/srv/planet/conf:/opt/couchdb/etc/local.d\""
+    echo "      - \"/srv/planet/data:/opt/couchdb/data\""
+    echo "      - \"/srv/planet/log:/opt/couchdb/var/log\""
+    echo "  chatapi:"
+    echo "    expose:"
+    echo "      - 5000"
+    echo "    image: treehouses/planet:chatapi-local"
+    echo "    depends_on:"
+    echo "      - couchdb"
+    echo "    ports:"
+    echo "      - \"5000:5000\""
+    echo "    environment:"
+    echo "      - COUCHDB_HOST=http://couchdb:5984"
+    echo "      # - COUCHDB_USER=admin"
+    echo "      # - COUCHDB_PASS=admin"
+    echo "      - SERVE_PORT=5000"
     echo "  db-init:"
     echo "    image: treehouses/planet:db-init-local"
     echo "    depends_on:"
     echo "      - couchdb"
     echo "    environment:"
     echo "      - COUCHDB_HOST=http://couchdb:5984"
+    echo "      # - COUCHDB_USER=admin"
+    echo "      # - COUCHDB_PASS=admin"
     echo "  planet:"
     echo "    image: treehouses/planet:local"
     echo "    ports:"
     echo "      - \"80:80\""
     echo "    volumes:"
     echo "      - \"/var/run/docker.sock:/var/run/docker.sock\""
+    echo "      - \"/srv/planet/pwd:/usr/share/nginx/html/credentials\""
+    echo "      - \"/srv/planet/fs:/usr/share/nginx/html/fs\""
+    echo "      - \"/srv/planet/.well-known:/usr/share/nginx/html/.well-known\""
     echo "    environment:"
     echo "      - MULTIPLE_IPS=true"
     echo "      - HOST_PROTOCOL=http"
     echo "      - DB_HOST=127.0.0.1"
     echo "      - DB_PORT=2200"
     echo "      - CENTER_ADDRESS=planet.earth.ole.org/db"
+    echo "      - PARENT_PROTOCOL=https"
     echo "    depends_on:"
     echo "      - couchdb"
-    echo "version: \"2\""
   } > /srv/planet/planet.yml
-
-  {
-    echo "services:"
-    echo "  couchdb:"
-    echo "    volumes:"
-    echo "      - \"/srv/planet/conf:/opt/couchdb/etc/local.d\""
-    echo "      - \"/srv/planet/data:/opt/couchdb/data\""
-    echo "      - \"/srv/planet/log:/opt/couchdb/var/log\""
-    echo "  planet:"
-    echo "    volumes:"
-    echo "      - \"/srv/planet/pwd:/usr/share/nginx/html/credentials\""
-    echo "      - \"/srv/planet/fs:/usr/share/nginx/html/fs\""
-    echo "version: \"2\""
-  } > /srv/planet/volumes.yml
 
   # add autorun
   {
@@ -78,6 +86,7 @@ function supported_arches {
 function get_ports {
   echo "80"
   echo "2200"
+  echo "5000"
 }
 
 # add size (in MB)
