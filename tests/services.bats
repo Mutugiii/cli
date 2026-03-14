@@ -23,6 +23,16 @@ load test-helper
   assert_success && assert_output -p 'planet built and started'
 }
 
+@test "$clinom services planet tag requires version" {
+  run "${clicmd}" services planet tag
+  assert_failure && assert_output -p 'version is required'
+}
+
+@test "$clinom services planet tags requires version" {
+  run "${clicmd}" services planet tags
+  assert_failure && assert_output -p 'version is required'
+}
+
 @test "$clinom services available" {
   run "${clicmd}" services available
   assert_success && assert_output -p 'planet'

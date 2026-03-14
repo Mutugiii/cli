@@ -224,6 +224,26 @@ function services {
             services $service_name stop
             services $service_name up
             ;;
+          tag)
+            checkargn $# 3
+            if [ "$service_name" != "planet" ]; then
+              log_and_exit1 "ERROR: tag is only supported for planet"
+            elif [ -z "$command_option" ]; then
+              log_and_exit1 "ERROR: version is required\nUSAGE: $BASENAME services planet tag <version>"
+            else
+              pull_and_tag_planet_images "treehouses/planet" "$command_option"
+            fi
+            ;;
+          tags)
+            checkargn $# 3
+            if [ "$service_name" != "planet" ]; then
+              log_and_exit1 "ERROR: tags is only supported for planet"
+            elif [ -z "$command_option" ]; then
+              log_and_exit1 "ERROR: version is required\nUSAGE: $BASENAME services planet tags <version>"
+            else
+              pull_and_tag_planet_images "treehouses/planet-tags" "$command_option"
+            fi
+            ;;
           autorun)
             checkargn $# 3
             if [ -z "$command_option" ]; then
@@ -485,6 +505,8 @@ function services {
             echo "                                ..... start"
             echo "                                ..... stop"
             echo "                                ..... restart"
+            echo "                                ..... tag [version]"
+            echo "                                ..... tags [version]"
             echo "                                ..... autorun [true|false]"
             echo "                                ..... ps"
             echo "                                ..... url [local|tor]"
@@ -563,6 +585,22 @@ function docker_compose_up {
   fi
 }
 
+function pull_and_tag_planet_images {
+  local image_repo image_tag
+  image_repo="$1"
+  image_tag="$2"
+
+  docker pull "${image_repo}:${image_tag}" || log_and_exit1 "ERROR: cannot pull image '${image_repo}:${image_tag}'"
+  docker pull "${image_repo}:db-init-${image_tag}" || log_and_exit1 "ERROR: cannot pull image '${image_repo}:db-init-${image_tag}'"
+  docker pull "${image_repo}:chatapi-${image_tag}" || log_and_exit1 "ERROR: cannot pull image '${image_repo}:chatapi-${image_tag}'"
+
+  docker tag "${image_repo}:${image_tag}" treehouses/planet:local
+  docker tag "${image_repo}:chatapi-${image_tag}" treehouses/planet:chatapi-local
+  docker tag "${image_repo}:db-init-${image_tag}" treehouses/planet:db-init-local
+
+  echo "planet images tagged to local"
+}
+
 function remove_tor_port {
   for i in $(seq 1 "$(services $service_name port | wc -l)")
   do
@@ -639,6 +677,8 @@ function services_help {
   echo "                             ..... start"
   echo "                             ..... stop"
   echo "                             ..... restart"
+  echo "                             ..... tag [version] (planet only)"
+  echo "                             ..... tags [version] (planet only)"
   echo "                             ..... autorun [true|false]"
   echo "                             ..... ps"
   echo "                             ..... url [local|tor]"
@@ -662,6 +702,11 @@ function services_help {
   echo "    stop                    stops <service_name>"
   echo
   echo "    restart                 restarts <service_name>"
+  echo
+  echo "    tag                     pulls and tags official planet release images to local (planet only)"
+  echo "        [version]               version to pull (e.g. v2.9.1)"
+  echo "    tags                    pulls and tags development/beta planet images to local (planet only)"
+  echo "        [version]               version to pull (e.g. v2.9.1)"
   echo
   echo "    autorun                 outputs true if <service_name> is set to autorun or false otherwise"
   echo "        [true]                  sets <service_name> autorun to true"
@@ -695,6 +740,10 @@ function services_help {
   echo "  Examples:"
   echo
   echo "    $BASENAME services planet up"
+  echo
+  echo "    $BASENAME services planet tag v2.9.1"
+  echo
+  echo "    $BASENAME services planet tags v2.9.1"
   echo
   echo "    $BASENAME services planet autorun"
   echo
