@@ -598,6 +598,7 @@ function pull_and_tag_planet_images {
   docker tag "${image_repo}:chatapi-${image_tag}" treehouses/planet:chatapi-local
   docker tag "${image_repo}:db-init-${image_tag}" treehouses/planet:db-init-local
 
+  docker image prune -f
   echo "planet images tagged to local"
 }
 
